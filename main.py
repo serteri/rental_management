@@ -3,17 +3,19 @@ from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow.validate import Length
 
-app = Flask(__name__)
-ma = Marshmallow(app)
 
-#set the database URI via SQLAclhemy
-app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql+psycopg2://serter:Altay2205@localhost:5432/rental_management"
+def create_app():
+    
+    app = Flask(__name__)
+    ma = Marshmallow(app)
 
-#to avaoid  the deprecation warning
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] =False
+# configuring our app:
+    app.config.from_object("config.app_config")
 
-#create the database object
-db = SQLAlchemy(app)
+    # creating our database object! This allows us to use our ORM
+    db = SQLAlchemy(app)
+
+
 
 
 
@@ -73,37 +75,8 @@ def drop_db():
     db.drop_all()
     print("Tables dropped")
 
-class User(db.Model):
-    #define the table name for the db
-    
-    __tablename__ = "USERS"
-    
-    #Set the primary key
-    
-    user_id = db.Column(db.Integer,primary_key=True)
-    
-    #Add rest of the attributes
-    
-    user_name = db.Column(db.String(),unique= True,nullable = False)
-    user_email = db.Column(db.String(),unique= True,nullable = False)
-    user_dob = db.Column(db.Date(),nullable = False)
-    password = db.Column(db.String(), nullable=False)
-    admin = db.Column(db.Boolean(), default=False)
-class Property(db.Model):
-    #define the table name for the db
-    
-    __tablename__ = "PROPERTIES"
-    
-    #Set the primary key
-    
-    property_id = db.Column(db.Integer,primary_key=True)
-    
-    #Add rest of the attributes
-    
-    property_address = db.Column(db.String(),nullable = False)
-    property_postcode = db.Column(db.String(),nullable = False)
-    property_suburb = db.Column(db.String(),nullable = False)
-    property_state = db.Column(db.String(),nullable = False)   
+
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         #fields to expose
