@@ -3,7 +3,7 @@ from main import db
 class User(db.Model):
     #define the table name for the db
     
-    __tablename__ = "USERS"
+    __tablename__ = "users"
     
     #Set the primary key
     
@@ -14,5 +14,8 @@ class User(db.Model):
     user_name = db.Column(db.String(),unique= True,nullable = False)
     user_email = db.Column(db.String(),unique= True,nullable = False)
     user_dob = db.Column(db.Date(),nullable = False)
-    password = db.Column(db.String(), nullable=False)
+    user_password = db.Column(db.String(), nullable=False)
     admin = db.Column(db.Boolean(), default=False)
+    
+    
+    properties = db.relationship("Property",backref="user",cascade="all,delete")
