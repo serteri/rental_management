@@ -51,7 +51,7 @@ def seed_db():
         property_postcode = "4010",
         property_suburb = "Albion",
         property_state = "QLD",
-        user = user1
+        user = admin_user
         
     )
     db.session.add(property2)

@@ -18,4 +18,4 @@ class User(db.Model):
     admin = db.Column(db.Boolean(), default=False)
     
     
-    properties = db.relationship("Property",backref="user",cascade="all,delete")
+    properties = db.relationship("Property",backref="users",cascade="all,delete")

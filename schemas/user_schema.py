@@ -8,8 +8,8 @@ from marshmallow.validate import Length
 class UserSchema(ma.Schema):
     class Meta:
         # Fields to expose
-        fields = ("user_id","user_name","user_email","user_dob","user_password","admin","property")
-        # load_only = ['user_password', 'admin']
+        fields = ("user_id","user_name","user_email","user_dob","user_password","admin","properties")
+        load_only = ('user_password', 'admin')
         # user_id = fields.Int(dump_only =True)
         # user_name = fields.Str()
         # user_email = fields.Str(required= True)
@@ -18,7 +18,7 @@ class UserSchema(ma.Schema):
         # admin = fields.Boolean()
         #set the password's length to a minimum of 6 characters
     user_password = ma.String(validate=Length(min=6))
-    property = fields.List(fields.Nested("PropertySchema"))
+    properties = fields.List(fields.Nested("PropertySchema",exclude=("users",)))
 
 #single card schema, when one card needs to be retrieved
 user_schema = UserSchema()
