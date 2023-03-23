@@ -4,7 +4,7 @@ from models.users import User
 from schemas.user_schema import user_schema, users_schema
 from datetime import date ,timedelta
 from main import bcrypt
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity
 from schemas.user_schema import UserSchema
 from sqlalchemy.exc  import SQLAlchemyError
 from flask_smorest import Blueprint , abort
@@ -40,6 +40,7 @@ def create_user(user_data):
     
     new_user.user_dob = user_fields["user_dob"]
     new_user.user_password = bcrypt.generate_password_hash(user_fields["user_password"]).decode("utf-8")
+    new_user.admin = user_data["admin"]
     #add to the database and commit
     db.session.add(new_user)
     db.session.commit()
@@ -53,7 +54,7 @@ def create_user(user_data):
     
     
     # return the user email and the access token
-    return jsonify({"new_user":new_user.user_email, "token": access_token })
+    return jsonify({"new_user":new_user.user_name, "token": access_token })
     
 @users.route("/login", methods=["POST"])
 def user_login():
@@ -97,7 +98,7 @@ def delete_user(id):
     # #return the card in the response
     return jsonify(user_schema.dump(user))
 
-@users.route("/users/<int:id>")
+@users.route("/users/<int:id>", methods= ["GET"])
 def get_user(id):
        user = User.query.filter_by(user_id=id).first()
        #return an error if the user does not exist
@@ -111,3 +112,26 @@ def get_user(id):
        #return the data in JSON format
        
        return jsonify(result)
+   
+@users.route("/users/<int:id>", methods= ["PUT"])
+@jwt_required()
+def update_user(id):
+    
+       user_fields = user_schema.load(request.json)
+       user = User.query.filter_by(user_id=id).first()
+       #return an error if the user does not exist
+       if not user:
+           return abort(400,description ="User does not exist")
+       
+       #Convert the users from the database into a JSON format and store them in result
+       
+       user.user_name = user_fields["user_name"]
+       user.user_email = user_fields["user_email"]
+       user.user_dob = user_fields["user_dob"]
+       
+       #add to the database and commit
+       db.session.commit()
+       
+       #return the data in JSON format
+       
+       return jsonify(user_schema.dump(user))   

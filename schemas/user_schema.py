@@ -9,7 +9,7 @@ class UserSchema(ma.Schema):
     class Meta:
         # Fields to expose
         fields = ("user_id","user_name","user_email","user_dob","user_password","admin","properties")
-        load_only = ('user_password', 'admin')
+        # load_only = ('user_password', 'admin')
         # user_id = fields.Int(dump_only =True)
         # user_name = fields.Str()
         # user_email = fields.Str(required= True)

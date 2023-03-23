@@ -16,5 +16,17 @@ class Property(db.Model):
     property_suburb = db.Column(db.String(),nullable = False)
     property_state = db.Column(db.String(),nullable = False)   
     
-    id = db.Column(db.Integer,db.ForeignKey("users.user_id"),nullable =False)
+    u_id = db.Column(db.Integer,db.ForeignKey("users.user_id"),nullable =False)
    
+    comments = db.relationship(
+        "Comment",
+        backref= "properties",
+        cascade= "all ,delete"
+        
+    )
+    ranks = db.relationship(
+        "Rank",
+        backref= "properties",
+        cascade= "all ,delete"
+        
+    )

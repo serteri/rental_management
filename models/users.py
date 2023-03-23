@@ -19,3 +19,15 @@ class User(db.Model):
     
     
     properties = db.relationship("Property",backref="users",cascade="all,delete")
+    
+    comments = db.relationship(
+        "Comment",
+        backref="user",
+        cascade="all, delete"
+    )
+    ranks = db.relationship(
+        "Rank",
+        backref= "user",
+        cascade= "all ,delete"
+        
+    )
