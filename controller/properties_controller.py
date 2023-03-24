@@ -24,12 +24,16 @@ def get_properties():
             
             #return the data in JSON format
             
+ 
             return jsonify(result)
+        
+        
+        
 # The POST route endpoint
-
-
 @properties.route("/property/<int:id>/", methods= ["GET"])
 def get_property(id):
+    
+    #find the property
      property = Property.query.filter_by(property_id=id).first()
      
      #return an error if the property does not exist
@@ -43,23 +47,28 @@ def get_property(id):
      #return  the data in JSON format
      return jsonify(result)
 
+#create a property
 @properties.route("/properties/new", methods=["POST"])
 @jwt_required()
 def create_property():
      #Create a new user
     property_fields = property_schema.load(request.json)
-   
+      
+     #find the property in the database
     new_property =Property.query.filter_by(property_address=property_fields["property_address"]).first()
-
+    #property in the database,return an error
     if new_property:
         # return an abort message to inform the user. That will end the request
         return abort(400, description="Property already registered")
    
+     #get the user id   
     u_id = get_jwt_identity()
+     
+    #new property 
     new_property =Property()
     new_property.property_address = property_fields["property_address"]
                                      
-     #Add tpost code attribute
+     #Add property  attributes
     new_property.property_postcode = property_fields["property_postcode"]
     
     new_property.property_suburb = property_fields["property_suburb"]
@@ -69,7 +78,7 @@ def create_property():
     db.session.add(new_property)
     db.session.commit()
     
-    # return the user email
+    # return the property address and user id
     return jsonify({"new_property":new_property.property_address , "id":new_property.u_id})       
 
 
@@ -78,7 +87,7 @@ def create_property():
 @jwt_required()
 def update_property(id):
      property_fields = property_schema.load(request.json)
-     
+     #get user from jwt 
      u_id = get_jwt_identity()
     #Find it in the db
      user = User.query.get(u_id)
@@ -93,7 +102,7 @@ def update_property(id):
 
      #find the property
      property = Property.query.filter_by(u_id=id).first()
-     #return an errot if the property deos not exist
+     #return an error if the property deos not exist
      if not property:
           return abort(400,description= "Property does not exist")
      
@@ -116,7 +125,7 @@ def update_property(id):
 # Finally, we round out our CRUD resource with a DELETE method
 @properties.route("/properties/<int:id>/", methods=["DELETE"])
 @jwt_required()
-def delete_card(id):
+def delete_property(id):
     #get the user id invoking get_jwt_identity
     user_id = get_jwt_identity()
     #Find it in the db
@@ -127,15 +136,15 @@ def delete_card(id):
     # Stop the request if the user is not an admin
     if not user.admin:
         return abort(401, description="Unauthorised user")
-    # find the card
+    # find the property
     property = Property.query.filter_by(property_id=id).first()
-    #return an error if the card doesn't exist
+    #return an error if the property doesn't exist
     if not property:
         return abort(400, description= "Property does not exist")
-    #Delete the card from the database and commit
+    #Delete the property from the database and commit
     db.session.delete(property)
     db.session.commit()
-    #return the card in the response
+    #return the propertu in the response
     return jsonify(property_schema.dump(property))
 
 
@@ -216,8 +225,9 @@ def delete_comment(id):
         return abort(400, description= "Property does not exist")
 
      
-     
+     #find the commit
     comment= Comment.query.filter_by(pro_id=id).first()
+    #return an error if not commit
     if not comment:
           return abort(400, description= "Comment does not exist") 
     db.session.delete(comment)
@@ -296,7 +306,7 @@ def post_rank(id):
      
      new_rank.prop_id =property.property_id
      
-     #use that id to set the qwnership of the property
+     #use that id to set the ownership of the rank
      
      new_rank.u_id = user_id
      
@@ -305,7 +315,7 @@ def post_rank(id):
      db.session.add(new_rank)
      db.session.commit()
      
-     #return the card in the response
+     #return the property in the response
      return jsonify(property_schema.dump(property))
 
 
@@ -323,23 +333,25 @@ def delete_rank(id):
     if not user:
         return abort(401, description="Invalid user")
     # Stop the request if the user is not an admin
-#     if not user.admin:
-#         return abort(401, description="Unauthorised user")
-    # find the card
+    if not user.admin:
+        return abort(401, description="Unauthorised user")
+    # find the property
     property = Property.query.filter_by(property_id=id).first()
-    #return an error if the card doesn't exist
+    #return an error if the property doesn't exist
     if not property:
         return abort(400, description= "Property does not exist")
 
      
-     
+     #find the rank
     rank= Rank.query.filter_by(prop_id=id).first()
+    #return an error if there is no rank
     if not rank:
           return abort(400, description= "Rank does not exist") 
+      #delete and commit it
     db.session.delete(rank)
     db.session.commit()
      
-     #return the card in the response
+     #return the rank in the response
     return jsonify(property_schema.dump(rank))
 
 @properties.route("/property/<int:id>/ranks",methods=["PUT"])
@@ -348,7 +360,7 @@ def delete_rank(id):
 # Property id required to assign the comment of a property
 def update_rank(id):
      
-      #create a new comment
+      #create a new rank
     rank_fields = rank_schema.load(request.json)
     
     #get the user id invoking get_jwt_identity
@@ -359,22 +371,23 @@ def update_rank(id):
     if not user:
         return abort(401, description="Invalid user")
     # Stop the request if the user is not an admin
-#     if not user.admin:
-#         return abort(401, description="Unauthorised user")
-#     # find the card
+    if not user.admin:
+        return abort(401, description="Unauthorised user")
+#     # find the property
     property = Property.query.filter_by(property_id=id).first()
-    #return an error if the card doesn't exist
+    #return an error if the property doesn't exist
     if not property:
         return abort(400, description= "Property does not exist")
 
      
-     
+     #find the rank
     rank= Rank.query.filter_by(prop_id=id).first()
+    #return an error if there is no rank
     if not rank:
           return abort(400, description= "Rank does not exist")
 
     rank.rank= rank_fields["rank"]
     db.session.commit()
      
-     #return the card in the response
+     #return the rank in the response
     return jsonify(property_schema.dump(rank))

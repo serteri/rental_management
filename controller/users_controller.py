@@ -35,7 +35,7 @@ def create_user(user_data):
     new_user = User()
     new_user.user_name = user_fields["user_name"]
                                      
-     #Add the email attribute
+     #Add the new user attributes
     new_user.user_email = user_fields["user_email"]
     
     new_user.user_dob = user_fields["user_dob"]
@@ -84,18 +84,19 @@ def delete_user(id):
     #if not user:
     #    return abort(401, description="Invalid user")
     # # Stop the request if the user is not an admin
-    #if not user.admin:
-      #   return abort(401, description="Unauthorised user")
-    # # find the card
+  
+    # # find the user
     user = User.query.filter_by(user_id=id).first()
-    # #return an error if the card doesn't exist
+    # #return an error if the user doesn't exist
     if not user:
      
          return abort(400, description= "User doesn't exist")
-    # #Delete the card from the database and commit
+    if not user.admin:
+        return abort(401, description="Unauthorised user")
+    # #Delete the user from the database and commit
     db.session.delete(user)
     db.session.commit()
-    # #return the card in the response
+    # #return the user in the response
     return jsonify(user_schema.dump(user))
 
 @users.route("/users/<int:id>", methods= ["GET"])
@@ -116,14 +117,15 @@ def get_user(id):
 @users.route("/users/<int:id>", methods= ["PUT"])
 @jwt_required()
 def update_user(id):
-    
+    # get the user data from the request
        user_fields = user_schema.load(request.json)
+       #find the user
        user = User.query.filter_by(user_id=id).first()
        #return an error if the user does not exist
        if not user:
            return abort(400,description ="User does not exist")
        
-       #Convert the users from the database into a JSON format and store them in result
+       #fill the attributes
        
        user.user_name = user_fields["user_name"]
        user.user_email = user_fields["user_email"]
