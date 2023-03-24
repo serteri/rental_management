@@ -151,9 +151,10 @@ def delete_property(id):
 
 @properties.route("/search", methods=["GET"])
 def search_properties():
-     
+     #find the property
      property_list = Property.query.filter_by(property_postcode = request.args.get('property_postcode'))
      
+     # conver it inro JSON and store in result
      result = properties_schema.dump(property_list)
      #return the data in JSON format
      return jsonify(result)

@@ -26,16 +26,18 @@ def create_user(user_data):
      #Create a new user
     user_fields =user_schema.load(request.json)
     
+    #find the new_user in the database by using user_fields['user_email']
     new_user = User.query.filter_by(user_email=user_fields["user_email"]).first()
 
     if new_user:
         # return an abort message to inform the user. That will end the request
         return abort(400, description="Email already registered")
     
+    #create a new user
     new_user = User()
+    
+      #Add the new user attributes
     new_user.user_name = user_fields["user_name"]
-                                     
-     #Add the new user attributes
     new_user.user_email = user_fields["user_email"]
     
     new_user.user_dob = user_fields["user_dob"]
